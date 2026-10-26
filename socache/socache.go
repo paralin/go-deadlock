@@ -1,8 +1,11 @@
 package socache
 
 import (
+	"reflect"
 	"sync"
 
+	protobuf "github.com/aperturerobotics/protobuf-go-lite"
+	"github.com/paralin/go-deadlock/cso"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
@@ -12,6 +15,8 @@ import (
 // SOCache implements the shared-object cache from DOTA.
 type SOCache struct {
 	containerMap sync.Map
+	// messageTypes holds caller-verified schemas for this cache only.
+	messageTypes sync.Map
 	le           logrus.FieldLogger
 }
 
@@ -20,13 +25,46 @@ func NewSOCache(le logrus.FieldLogger) *SOCache {
 	return &SOCache{le: le}
 }
 
+// RegisterType associates a verified shared-object type ID with a message schema.
+// Register before receiving packets: unsupported objects received earlier are
+// not replayed. IDs must come from verified protocol evidence, not guesses.
+// The prototype must be a non-nil pointer to a message struct. Only its type is
+// retained; each packet is decoded into a new, empty instance of that type.
+// Registrations are local to this cache and cannot replace a registered or
+// built-in type. RegisterType does not request any network subscriptions.
+func (c *SOCache) RegisterType(typ cso.CSOType, prototype protobuf.Message) error {
+	if typ <= 0 {
+		return errors.New("shared object type id must be positive")
+	}
+	// Reserve known built-in IDs even if their decoder is not implemented yet.
+	if typ == cso.EconItem || typ == cso.ItemRecipe || typ == cso.EconGameAccountClient {
+		return errors.Errorf("cannot replace built-in shared object type id: %d", typ)
+	}
+	t := reflect.TypeOf(prototype)
+	if t == nil || t.Kind() != reflect.Pointer || t.Elem().Kind() != reflect.Struct || reflect.ValueOf(prototype).IsNil() {
+		return errors.New("shared object prototype must be a non-nil pointer to a message struct")
+	}
+	if _, loaded := c.messageTypes.LoadOrStore(typ, t); loaded {
+		return errors.Errorf("shared object type id already registered: %d", typ)
+	}
+	return nil
+}
+
 // GetContainerForTypeID returns the container for the type id.
 func (c *SOCache) GetContainerForTypeID(id uint32) (*SOCacheContainer, error) {
 	if valInter, ok := c.containerMap.Load(id); ok {
 		return valInter.(*SOCacheContainer), nil
 	}
 
-	ctr, err := NewSOCacheContainer(c.le, id)
+	constructor := func() (protobuf.Message, error) {
+		return cso.NewSharedObject(cso.CSOType(id)) //nolint:gosec
+	}
+	if t, ok := c.messageTypes.Load(cso.CSOType(id)); ok && id <= uint32(1<<31-1) {
+		constructor = func() (protobuf.Message, error) {
+			return reflect.New(t.(reflect.Type).Elem()).Interface().(protobuf.Message), nil
+		}
+	}
+	ctr, err := newSOCacheContainer(c.le, id, constructor)
 	if err != nil {
 		return nil, err
 	}

@@ -24,7 +24,9 @@ const (
 // TODO: the cache type IDs for the Deadlock-specific shared objects
 // (CSOGameAccountClient, CSOAccountHeroInfo, CSOCitadelLobby, CSOCitadelParty,
 // etc.) are assigned by the GC and not present in the protobufs. Capture them
-// from a live session and register them here.
+// from an authorized session before adding built-in mappings. Callers with
+// independently verified IDs can use SOCache.RegisterType for cache-local
+// decoding without changing this process-wide constructor table.
 
 // csoTypeCtors links type IDs to constructors.
 var csoTypeCtors = map[CSOType]func() protobuf.Message{

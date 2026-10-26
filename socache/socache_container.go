@@ -18,6 +18,8 @@ type SOCacheContainer struct {
 	le logrus.FieldLogger
 	// typeID identifies the shared-object schema.
 	typeID uint32
+	// newMessage constructs a fresh message without retaining caller state.
+	newMessage func() (protobuf.Message, error)
 	// mtx guards objects, subscriptions, and their notification order.
 	mtx sync.Mutex
 	// objects retains decoded messages, immutable after publication.
@@ -30,15 +32,21 @@ type SOCacheContainer struct {
 
 // NewSOCacheContainer builds a new container for a type id.
 func NewSOCacheContainer(le logrus.FieldLogger, typeID uint32) (*SOCacheContainer, error) {
+	return newSOCacheContainer(le, typeID, func() (protobuf.Message, error) {
+		return cso.NewSharedObject(cso.CSOType(typeID)) //nolint:gosec
+	})
+}
+
+func newSOCacheContainer(le logrus.FieldLogger, typeID uint32, constructor func() (protobuf.Message, error)) (*SOCacheContainer, error) {
 	// Reject unsupported schemas before publishing a container.
 	typ := cso.CSOType(typeID) //nolint:gosec
-	if _, err := cso.NewSharedObject(typ); err != nil {
+	if _, err := constructor(); err != nil {
 		return nil, err
 	}
 
 	// Allocate both maps before the container accepts concurrent use.
 	return &SOCacheContainer{
-		typeID: typeID, le: le.WithField("object-type", typ.String()),
+		typeID: typeID, newMessage: constructor, le: le.WithField("object-type", typ.String()),
 		objects:       make(map[uint64]protobuf.Message),
 		subscriptions: make(map[uint64]chan *CacheEvent),
 	}, nil
@@ -52,7 +60,7 @@ func (c *SOCacheContainer) GetTypeID() uint32 {
 // parseObject parses an object.
 func (c *SOCacheContainer) parseObject(obj *gcsdkm.CMsgSOCacheSubscribed_SubscribedType) (protobuf.Message, error) {
 	// Construct the schema selected by this container.
-	so, err := cso.NewSharedObject(cso.CSOType(c.GetTypeID())) //nolint:gosec
+	so, err := c.newMessage()
 	if err != nil {
 		c.le.Debugf("unknown: %v", obj.String())
 		return nil, err

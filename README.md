@@ -59,6 +59,42 @@ Events for the object type are emitted on the eventCh. Be sure to call `eventCan
 
 The cache object also adds interfaces to get and list the current objects in the cache.
 
+### Registering an additional shared-object schema
+
+Deadlock-specific party/lobby type IDs are not yet built into this library.
+If you have independently verified those IDs for your protocol version, register
+their message types on your client's cache **before it receives GC packets**:
+
+```go
+// partyTypeID and lobbyTypeID are caller-supplied, verified cso.CSOType values.
+// No numeric mappings are implied by this example.
+cache := dl.GetCache()
+if err := cache.RegisterType(partyTypeID, &gcmm.CSOCitadelParty{}); err != nil {
+    return err
+}
+if err := cache.RegisterType(lobbyTypeID, &gcmm.CSOCitadelLobby{}); err != nil {
+    return err
+}
+partyEvents, cancel, err := cache.SubscribeType(partyTypeID)
+if err != nil {
+    return err
+}
+defer cancel()
+// Consume partyEvents while this explicitly selected party is relevant.
+```
+
+Registration retains only the prototype's Go type, not its field values. Each
+packet gets a fresh message; mappings are cache-local and cannot replace existing
+or built-in mappings. Unknown/unregistered IDs still return an error. Earlier
+unsupported packets are not replayed after registration.
+
+This is local decoding configuration, not a request to the GC to subscribe,
+join a party, discover matches or spectate. It does not populate
+`DeadlockState.Party`/`Lobby`, associate a party with a running match, or prove
+that the GC will send those objects. A custom-lobby application must verify
+its selected party identity/private mode, observer admission and associated
+running lobby before acting; registration itself does not enforce that policy.
+
 ## Implementation Generation
 
 This project makes use of a dynamic API generator (apigen) designed to
