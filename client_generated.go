@@ -51,6 +51,25 @@ func (d *Deadlock) ClaimChallenge(
 	)
 }
 
+// CreateCabal creates a cabal.
+//
+// Sends the GC message k_EMsgClientToGCCabalCreate (CMsgClientToGCCabalCreate) and awaits the response k_EMsgClientToGCCabalCreateResponse,
+// delivered as *CMsgClientToGCCabalCreateResponse.
+func (d *Deadlock) CreateCabal(
+	ctx context.Context,
+) (*protocol.CMsgClientToGCCabalCreateResponse, error) {
+	req := &protocol.CMsgClientToGCCabalCreate{}
+	resp := &protocol.CMsgClientToGCCabalCreateResponse{}
+
+	return resp, d.MakeRequest(
+		ctx,
+		uint32(protocol.EGCCitadelClientMessages_k_EMsgClientToGCCabalCreate),
+		req,
+		uint32(protocol.EGCCitadelClientMessages_k_EMsgClientToGCCabalCreateResponse),
+		resp,
+	)
+}
+
 // CreateParty creates a new party with the given matchmaking options.
 //
 // The party join code is returned in the response, unless party codes are
@@ -109,9 +128,11 @@ func (d *Deadlock) FindHeroBuilds(
 func (d *Deadlock) GetAccountLeaderboards(
 	ctx context.Context,
 	accountID uint32,
+	leaderboardID uint32,
 ) (*protocol.CMsgClientToGCGetAccountLeaderboardsResponse, error) {
 	req := &protocol.CMsgClientToGCGetAccountLeaderboards{
-		AccountId: &accountID,
+		AccountId:     &accountID,
+		LeaderboardId: &leaderboardID,
 	}
 	resp := &protocol.CMsgClientToGCGetAccountLeaderboardsResponse{}
 
@@ -202,6 +223,54 @@ func (d *Deadlock) GetBook(
 		uint32(protocol.EGCCitadelClientMessages_k_EMsgClientToGCGetBook),
 		req,
 		uint32(protocol.EGCCitadelClientMessages_k_EMsgClientToGCGetBookResponse),
+		resp,
+	)
+}
+
+// GetCabalDetails gets cabal details.
+//
+// Sends the GC message k_EMsgClientToGCCabalGetDetails (CMsgClientToGCCabalGetDetails) and awaits the response k_EMsgClientToGCCabalGetDetailsResponse,
+// delivered as *CMsgClientToGCCabalGetDetailsResponse.
+func (d *Deadlock) GetCabalDetails(
+	ctx context.Context,
+	cabalID uint64,
+) (*protocol.CMsgClientToGCCabalGetDetailsResponse, error) {
+	req := &protocol.CMsgClientToGCCabalGetDetails{
+		CabalId: &cabalID,
+	}
+	resp := &protocol.CMsgClientToGCCabalGetDetailsResponse{}
+
+	return resp, d.MakeRequest(
+		ctx,
+		uint32(protocol.EGCCitadelClientMessages_k_EMsgClientToGCCabalGetDetails),
+		req,
+		uint32(protocol.EGCCitadelClientMessages_k_EMsgClientToGCCabalGetDetailsResponse),
+		resp,
+	)
+}
+
+// GetCabalMatchHistory gets a cabal match history.
+//
+// Sends the GC message k_EMsgClientToGCCabalGetMatchHistory (CMsgClientToGCCabalGetMatchHistory) and awaits the response k_EMsgClientToGCCabalGetMatchHistoryResponse,
+// delivered as *CMsgClientToGCCabalGetMatchHistoryResponse.
+func (d *Deadlock) GetCabalMatchHistory(
+	ctx context.Context,
+	cabalID uint64,
+	cabalMmTier protocol.ECitadelCabalMMTier,
+	cursor uint64,
+) (*protocol.CMsgClientToGCCabalGetMatchHistoryResponse, error) {
+	req := &protocol.CMsgClientToGCCabalGetMatchHistory{
+		CabalId:     &cabalID,
+		CabalMmTier: &cabalMmTier,
+		Cursor:      &cursor,
+	}
+	resp := &protocol.CMsgClientToGCCabalGetMatchHistoryResponse{}
+
+	return resp, d.MakeRequest(
+		ctx,
+		uint32(protocol.EGCCitadelClientMessages_k_EMsgClientToGCCabalGetMatchHistory),
+		req,
+		uint32(protocol.EGCCitadelClientMessages_k_EMsgClientToGCCabalGetMatchHistoryResponse),
 		resp,
 	)
 }
@@ -302,16 +371,40 @@ func (d *Deadlock) GetHideoutSDRTicket(
 	)
 }
 
+// GetInternalLeaderboards gets internal leaderboards.
+//
+// Sends the GC message k_EMsgClientToGCGetInternalLeaderboards (CMsgClientToGCGetInternalLeaderboards) and awaits the response k_EMsgClientToGCGetInternalLeaderboardsResponse,
+// delivered as *CMsgClientToGCGetInternalLeaderboardsResponse.
+func (d *Deadlock) GetInternalLeaderboards(
+	ctx context.Context,
+	accountID uint32,
+) (*protocol.CMsgClientToGCGetInternalLeaderboardsResponse, error) {
+	req := &protocol.CMsgClientToGCGetInternalLeaderboards{
+		AccountId: &accountID,
+	}
+	resp := &protocol.CMsgClientToGCGetInternalLeaderboardsResponse{}
+
+	return resp, d.MakeRequest(
+		ctx,
+		uint32(protocol.EGCCitadelClientMessages_k_EMsgClientToGCGetInternalLeaderboards),
+		req,
+		uint32(protocol.EGCCitadelClientMessages_k_EMsgClientToGCGetInternalLeaderboardsResponse),
+		resp,
+	)
+}
+
 // GetLeaderboard returns the calling account's placement on the leaderboard
 // for the given region and hero: position, badge level, and display name.
 func (d *Deadlock) GetLeaderboard(
 	ctx context.Context,
 	leaderboardRegion protocol.ECitadelLeaderboardRegion,
 	heroID uint32,
+	leaderboardID uint32,
 ) (*protocol.CMsgClientToGCGetLeaderboardResponse, error) {
 	req := &protocol.CMsgClientToGCGetLeaderboard{
 		LeaderboardRegion: &leaderboardRegion,
 		HeroId:            &heroID,
+		LeaderboardId:     &leaderboardID,
 	}
 	resp := &protocol.CMsgClientToGCGetLeaderboardResponse{}
 
@@ -320,6 +413,28 @@ func (d *Deadlock) GetLeaderboard(
 		uint32(protocol.EGCCitadelClientMessages_k_EMsgClientToGCGetLeaderboard),
 		req,
 		uint32(protocol.EGCCitadelClientMessages_k_EMsgClientToGCGetLeaderboardResponse),
+		resp,
+	)
+}
+
+// GetLeaderboardStatus gets leaderboard status.
+//
+// Sends the GC message k_EMsgClientToGCGetLeaderboardStatus (CMsgClientToGCGetLeaderboardStatus) and awaits the response k_EMsgClientToGCGetLeaderboardStatusResponse,
+// delivered as *CMsgClientToGCGetLeaderboardStatusResponse.
+func (d *Deadlock) GetLeaderboardStatus(
+	ctx context.Context,
+	leaderboardID uint32,
+) (*protocol.CMsgClientToGCGetLeaderboardStatusResponse, error) {
+	req := &protocol.CMsgClientToGCGetLeaderboardStatus{
+		LeaderboardId: &leaderboardID,
+	}
+	resp := &protocol.CMsgClientToGCGetLeaderboardStatusResponse{}
+
+	return resp, d.MakeRequest(
+		ctx,
+		uint32(protocol.EGCCitadelClientMessages_k_EMsgClientToGCGetLeaderboardStatus),
+		req,
+		uint32(protocol.EGCCitadelClientMessages_k_EMsgClientToGCGetLeaderboardStatusResponse),
 		resp,
 	)
 }
@@ -336,6 +451,7 @@ func (d *Deadlock) GetMatchHistory(
 	matchMode protocol.ECitadelMatchMode,
 	rankedType protocol.ECitadelRankedType,
 	rankInterval uint32,
+	cabalID uint64,
 ) (*protocol.CMsgClientToGCGetMatchHistoryResponse, error) {
 	req := &protocol.CMsgClientToGCGetMatchHistory{
 		AccountId:      &accountID,
@@ -344,6 +460,7 @@ func (d *Deadlock) GetMatchHistory(
 		MatchMode:      &matchMode,
 		RankedType:     &rankedType,
 		RankInterval:   &rankInterval,
+		CabalId:        &cabalID,
 	}
 	resp := &protocol.CMsgClientToGCGetMatchHistoryResponse{}
 
@@ -501,6 +618,54 @@ func (d *Deadlock) JoinPartyViaCode(
 	)
 }
 
+// KickCabalPlayer kicks a cabal player.
+//
+// Sends the GC message k_EMsgClientToGCCabalKickPlayer (CMsgClientToGCCabalKickPlayer) and awaits the response k_EMsgClientToGCCabalKickPlayerResponse,
+// delivered as *CMsgClientToGCCabalKickPlayerResponse.
+func (d *Deadlock) KickCabalPlayer(
+	ctx context.Context,
+	cabalID uint64,
+	kickAccountID uint32,
+) (*protocol.CMsgClientToGCCabalKickPlayerResponse, error) {
+	req := &protocol.CMsgClientToGCCabalKickPlayer{
+		CabalId:       &cabalID,
+		KickAccountId: &kickAccountID,
+	}
+	resp := &protocol.CMsgClientToGCCabalKickPlayerResponse{}
+
+	return resp, d.MakeRequest(
+		ctx,
+		uint32(protocol.EGCCitadelClientMessages_k_EMsgClientToGCCabalKickPlayer),
+		req,
+		uint32(protocol.EGCCitadelClientMessages_k_EMsgClientToGCCabalKickPlayerResponse),
+		resp,
+	)
+}
+
+// LeaveCabal leaves a cabal.
+//
+// Sends the GC message k_EMsgClientToGCCabalLeave (CMsgClientToGCCabalLeave) and awaits the response k_EMsgClientToGCCabalLeaveResponse,
+// delivered as *CMsgClientToGCCabalLeaveResponse.
+func (d *Deadlock) LeaveCabal(
+	ctx context.Context,
+	cabalID uint64,
+	acknowledgedLastMember bool,
+) (*protocol.CMsgClientToGCCabalLeaveResponse, error) {
+	req := &protocol.CMsgClientToGCCabalLeave{
+		CabalId:                &cabalID,
+		AcknowledgedLastMember: &acknowledgedLastMember,
+	}
+	resp := &protocol.CMsgClientToGCCabalLeaveResponse{}
+
+	return resp, d.MakeRequest(
+		ctx,
+		uint32(protocol.EGCCitadelClientMessages_k_EMsgClientToGCCabalLeave),
+		req,
+		uint32(protocol.EGCCitadelClientMessages_k_EMsgClientToGCCabalLeaveResponse),
+		resp,
+	)
+}
+
 // LeaveLobby leaves the current lobby, if any.
 func (d *Deadlock) LeaveLobby(
 	ctx context.Context,
@@ -612,9 +777,11 @@ func (d *Deadlock) RequestDevCheatReports(
 // release vote.
 func (d *Deadlock) RequestHeroReleaseVoteTally(
 	voteRounds []uint32,
+	isInitialRequest bool,
 ) {
 	req := &protocol.CMsgClientToGCRequestHeroReleaseVoteTally{
-		VoteRounds: voteRounds,
+		VoteRounds:       voteRounds,
+		IsInitialRequest: &isInitialRequest,
 	}
 	d.write(uint32(protocol.EGCCitadelClientMessages_k_EMsgClientToGCRequestHeroReleaseVoteTally), req)
 }
@@ -638,6 +805,34 @@ func (d *Deadlock) RequestModerator(
 	)
 }
 
+// RequestReporterUpdates requests reporter updates.
+//
+// Sends the GC message k_EMsgClientToGCRequestReporterUpdates (CMsgClientToGCRequestReporterUpdates) and awaits the response k_EMsgClientToGCRequestReporterUpdatesResponse,
+// delivered as *CMsgClientToGCRequestReporterUpdatesResponse.
+func (d *Deadlock) RequestReporterUpdates(
+	ctx context.Context,
+) (*protocol.CMsgClientToGCRequestReporterUpdatesResponse, error) {
+	req := &protocol.CMsgClientToGCRequestReporterUpdates{}
+	resp := &protocol.CMsgClientToGCRequestReporterUpdatesResponse{}
+
+	return resp, d.MakeRequest(
+		ctx,
+		uint32(protocol.EGCCitadelClientMessages_k_EMsgClientToGCRequestReporterUpdates),
+		req,
+		uint32(protocol.EGCCitadelClientMessages_k_EMsgClientToGCRequestReporterUpdatesResponse),
+		resp,
+	)
+}
+
+// SendAcknowledgeReporterUpdates sends acknowledge reporter updates.
+//
+// Sends the GC message k_EMsgClientToGCAcknowledgeReporterUpdates (CMsgClientToGCAcknowledgeReporterUpdates). No response is tracked; any result
+// arrives through the client event stream.
+func (d *Deadlock) SendAcknowledgeReporterUpdates() {
+	req := &protocol.CMsgClientToGCAcknowledgeReporterUpdates{}
+	d.write(uint32(protocol.EGCCitadelClientMessages_k_EMsgClientToGCAcknowledgeReporterUpdates), req)
+}
+
 // SendBookUnlock purchases an unlock from the hero book. The expected_cost is
 // checked server-side; the purchase fails if it does not match.
 func (d *Deadlock) SendBookUnlock(
@@ -658,6 +853,56 @@ func (d *Deadlock) SendBookUnlock(
 		uint32(protocol.EGCCitadelClientMessages_k_EMsgClientToGCBookUnlock),
 		req,
 		uint32(protocol.EGCCitadelClientMessages_k_EMsgClientToGCBookUnlockResponse),
+		resp,
+	)
+}
+
+// SendCabalAnswerInvite sends a cabal answer invite.
+//
+// Sends the GC message k_EMsgClientToGCCabalAnswerInvite (CMsgClientToGCCabalAnswerInvite) and awaits the response k_EMsgClientToGCCabalAnswerInviteResponse,
+// delivered as *CMsgClientToGCCabalAnswerInviteResponse.
+func (d *Deadlock) SendCabalAnswerInvite(
+	ctx context.Context,
+	cabalID uint64,
+	accepted bool,
+) (*protocol.CMsgClientToGCCabalAnswerInviteResponse, error) {
+	req := &protocol.CMsgClientToGCCabalAnswerInvite{
+		CabalId:  &cabalID,
+		Accepted: &accepted,
+	}
+	resp := &protocol.CMsgClientToGCCabalAnswerInviteResponse{}
+
+	return resp, d.MakeRequest(
+		ctx,
+		uint32(protocol.EGCCitadelClientMessages_k_EMsgClientToGCCabalAnswerInvite),
+		req,
+		uint32(protocol.EGCCitadelClientMessages_k_EMsgClientToGCCabalAnswerInviteResponse),
+		resp,
+	)
+}
+
+// SendCabalInviteAccount sends a cabal invite account.
+//
+// Sends the GC message k_EMsgClientToGCCabalInviteAccount (CMsgClientToGCCabalInviteAccount) and awaits the response k_EMsgClientToGCCabalInviteAccountResponse,
+// delivered as *CMsgClientToGCCabalInviteAccountResponse.
+func (d *Deadlock) SendCabalInviteAccount(
+	ctx context.Context,
+	cabalID uint64,
+	accountID uint32,
+	cancelInvite bool,
+) (*protocol.CMsgClientToGCCabalInviteAccountResponse, error) {
+	req := &protocol.CMsgClientToGCCabalInviteAccount{
+		CabalId:      &cabalID,
+		AccountId:    &accountID,
+		CancelInvite: &cancelInvite,
+	}
+	resp := &protocol.CMsgClientToGCCabalInviteAccountResponse{}
+
+	return resp, d.MakeRequest(
+		ctx,
+		uint32(protocol.EGCCitadelClientMessages_k_EMsgClientToGCCabalInviteAccount),
+		req,
+		uint32(protocol.EGCCitadelClientMessages_k_EMsgClientToGCCabalInviteAccountResponse),
 		resp,
 	)
 }
@@ -774,38 +1019,6 @@ func (d *Deadlock) SendIsInMatchmaking(
 		uint32(protocol.EGCCitadelClientMessages_k_EMsgClientToGCIsInMatchmaking),
 		req,
 		uint32(protocol.EGCCitadelClientMessages_k_EMsgClientToGCIsInMatchmakingResponse),
-		resp,
-	)
-}
-
-// SendModifyDevAnnouncements creates, updates, or removes in-client
-// announcements. Developer accounts only.
-func (d *Deadlock) SendModifyDevAnnouncements(
-	ctx context.Context,
-	operation protocol.CMsgClientToGCModifyDevAnnouncements_EOperation,
-	targetID uint32,
-	priority uint32,
-	title string,
-	message string,
-	uRL string,
-	patchVersion string,
-) (*protocol.CMsgClientToGCModifyDevAnnouncementsResponse, error) {
-	req := &protocol.CMsgClientToGCModifyDevAnnouncements{
-		Operation:    &operation,
-		TargetId:     &targetID,
-		Priority:     &priority,
-		Title:        &title,
-		Message:      &message,
-		Url:          &uRL,
-		PatchVersion: &patchVersion,
-	}
-	resp := &protocol.CMsgClientToGCModifyDevAnnouncementsResponse{}
-
-	return resp, d.MakeRequest(
-		ctx,
-		uint32(protocol.EGCCitadelClientMessages_k_EMsgClientToGCModifyDevAnnouncements),
-		req,
-		uint32(protocol.EGCCitadelClientMessages_k_EMsgClientToGCModifyDevAnnouncementsResponse),
 		resp,
 	)
 }
@@ -1023,6 +1236,30 @@ func (d *Deadlock) SendUpdateSpectatorStatus(
 		StoppedSpectating: &stoppedSpectating,
 	}
 	d.write(uint32(protocol.EGCCitadelClientMessages_k_EMsgClientToGCUpdateSpectatorStatus), req)
+}
+
+// SendVariantItemChangeSlotStyles sends variant item change slot styles.
+//
+// Sends the GC message k_EMsgClientToGCVariantItemChangeSlotStyles (CMsgClientToGCVariantItemChangeSlotStyles) and awaits the response k_EMsgClientToGCVariantItemChangeSlotStylesResponse,
+// delivered as *CMsgClientToGCVariantItemChangeSlotStylesResponse.
+func (d *Deadlock) SendVariantItemChangeSlotStyles(
+	ctx context.Context,
+	itemID uint64,
+	slotStyleActions []*protocol.CMsgClientToGCVariantItemChangeSlotStyles_SlotStyleAction,
+) (*protocol.CMsgClientToGCVariantItemChangeSlotStylesResponse, error) {
+	req := &protocol.CMsgClientToGCVariantItemChangeSlotStyles{
+		ItemId:           &itemID,
+		SlotStyleActions: slotStyleActions,
+	}
+	resp := &protocol.CMsgClientToGCVariantItemChangeSlotStylesResponse{}
+
+	return resp, d.MakeRequest(
+		ctx,
+		uint32(protocol.EGCCitadelClientMessages_k_EMsgClientToGCVariantItemChangeSlotStyles),
+		req,
+		uint32(protocol.EGCCitadelClientMessages_k_EMsgClientToGCVariantItemChangeSlotStylesResponse),
+		resp,
+	)
 }
 
 // SetAccountPrivacySetting changes who can view your profile card and
@@ -1373,14 +1610,14 @@ func (d *Deadlock) registerGeneratedHandlers() {
 	d.handlers[uint32(protocol.EGCCitadelClientMessages_k_EMsgGCToClientBookUpdated)] = d.getEventEmitter(func() events.Event {
 		return &events.BookUpdated{}
 	})
+	d.handlers[uint32(protocol.EGCCitadelClientMessages_k_EMsgGCToClientCabalUpdated)] = d.getEventEmitter(func() events.Event {
+		return &events.CabalUpdated{}
+	})
 	d.handlers[uint32(protocol.EGCCitadelClientMessages_k_EMsgGCToClientCanRejoinParty)] = d.getEventEmitter(func() events.Event {
 		return &events.CanRejoinParty{}
 	})
 	d.handlers[uint32(protocol.EGCCitadelClientMessages_k_EMsgGCToClientCommendNotification)] = d.getEventEmitter(func() events.Event {
 		return &events.CommendNotification{}
-	})
-	d.handlers[uint32(protocol.EGCCitadelClientMessages_k_EMsgGCToClientDevAnnouncements)] = d.getEventEmitter(func() events.Event {
-		return &events.DevAnnouncements{}
 	})
 	d.handlers[uint32(protocol.EGCCitadelClientMessages_k_EMsgGCToClientDevPlaytestStatus)] = d.getEventEmitter(func() events.Event {
 		return &events.DevPlaytestStatus{}
@@ -1393,6 +1630,9 @@ func (d *Deadlock) registerGeneratedHandlers() {
 	})
 	d.handlers[uint32(protocol.EGCCitadelClientMessages_k_EMsgGCToClientPartyEvent)] = d.getEventEmitter(func() events.Event {
 		return &events.PartyEvent{}
+	})
+	d.handlers[uint32(protocol.EGCCitadelClientMessages_k_EMsgGCToClientPartyPlayerTyping)] = d.getEventEmitter(func() events.Event {
+		return &events.PartyPlayerTyping{}
 	})
 	d.handlers[uint32(protocol.EGCCitadelClientMessages_k_EMsgGCToClientProfileCardUpdated)] = d.getEventEmitter(func() events.Event {
 		return &events.ProfileCardUpdated{}

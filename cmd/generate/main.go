@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
 
@@ -221,18 +222,37 @@ func copyDir(src, dst string) error {
 	})
 }
 
+// fullyQualifiedType matches a type reference written from the root package,
+// such as ".CMsgFoo" in "optional .CMsgFoo", "map<uint32, .CMsgFoo>" or
+// "rpc Foo (.CMsgFoo)".
+var fullyQualifiedType = regexp.MustCompile(`([\s<,(])\.([A-Za-z_][\w.]*)`)
+
+// cppCodegenOption matches the field options Valve's C++ code generator reads,
+// which no proto in the dump defines and which mean nothing to Go.
+var cppCodegenOption = regexp.MustCompile(`(, )?\b(boxed_type|synthetic_default) = "[^"]*"`)
+
+// cppIncludeOption matches the file option naming C++ headers for Valve's code
+// generator.
+var cppIncludeOption = regexp.MustCompile(`(?m)^option additional_includes = "[^"]*";\n`)
+
+// normalizeProto rewrites a dumped proto into package protocol: type
+// references lose their root-package dot, imports gain the protocol import
+// prefix, and options only Valve's C++ generator understands are dropped.
 func normalizeProto(name, body string) string {
 	content := "syntax = \"proto2\";\npackage protocol;\n\n" + body
-	content = strings.ReplaceAll(content, "optional .", "optional ")
-	content = strings.ReplaceAll(content, "required .", "required ")
-	content = strings.ReplaceAll(content, "repeated .", "repeated ")
-	content = strings.ReplaceAll(content, "\t.", "\t")
+	content = fullyQualifiedType.ReplaceAllStringFunc(content, func(match string) string {
+		if strings.HasPrefix(match[2:], "google.") {
+			return match
+		}
+		return match[:1] + match[2:]
+	})
+	content = cppIncludeOption.ReplaceAllString(content, "")
+	content = cppCodegenOption.ReplaceAllString(content, "")
+	content = strings.ReplaceAll(content, "[, ", "[")
+	content = strings.ReplaceAll(content, " []", "")
 	content = strings.ReplaceAll(content, "google/protobuf/valve_extensions.proto", "valveextensions.proto")
 	content = rewriteProtoImports(content)
 
-	if name == "steammessages_steamlearn.steamworkssdk.proto" {
-		content = strings.ReplaceAll(content, "(.CMsgSteamLearn", "(CMsgSteamLearn")
-	}
 	if name == "networkbasetypes.proto" {
 		content = strings.ReplaceAll(content, "maximum_size_bytes = 50000", "maximum_size_bytes = 60002")
 	}

@@ -4,6 +4,7 @@ package protocol;
 import "github.com/paralin/go-deadlock/protocol/valveextensions.proto";
 import "github.com/paralin/go-deadlock/protocol/steammessages.proto";
 import "github.com/paralin/go-deadlock/protocol/steammessages_steamlearn.steamworkssdk.proto";
+import "google/protobuf/descriptor.proto";
 
 enum ESourceEngine {
 	k_ESE_Source1 = 0;
@@ -224,7 +225,6 @@ message CMsgClientHello {
 	repeated CMsgSOCacheHaveVersion socache_have_versions = 2;
 	optional uint32 client_session_need = 3;
 	optional PartnerAccountType client_launcher = 4 [default = PARTNER_NONE];
-	optional string secret_key = 5;
 	optional uint32 client_language = 6;
 	optional ESourceEngine engine = 7 [default = k_ESE_Source1];
 	optional bytes steamdatagram_login = 8;

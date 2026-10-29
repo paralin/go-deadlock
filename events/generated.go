@@ -26,6 +26,28 @@ func (e *BookUpdated) GetEventName() string {
 	return "BookUpdated"
 }
 
+// CabalUpdated is an event delivered by the GC.
+//
+// Message: k_EMsgGCToClientCabalUpdated (CMsgGCToClientCabalUpdated).
+type CabalUpdated struct {
+	protocol.CMsgGCToClientCabalUpdated
+}
+
+// GetDeadlockEventMsgID returns the deadlock message ID of the event.
+func (e *CabalUpdated) GetDeadlockEventMsgID() protocol.EGCCitadelClientMessages {
+	return protocol.EGCCitadelClientMessages_k_EMsgGCToClientCabalUpdated
+}
+
+// GetEventBody returns the event body.
+func (e *CabalUpdated) GetEventBody() protobuf_go_lite.Message {
+	return &e.CMsgGCToClientCabalUpdated
+}
+
+// GetEventName returns the event name.
+func (e *CabalUpdated) GetEventName() string {
+	return "CabalUpdated"
+}
+
 // CanRejoinParty is emitted when the GC determines your account may rejoin a
 // party it was disconnected from.
 type CanRejoinParty struct {
@@ -65,26 +87,6 @@ func (e *CommendNotification) GetEventBody() protobuf_go_lite.Message {
 // GetEventName returns the event name.
 func (e *CommendNotification) GetEventName() string {
 	return "CommendNotification"
-}
-
-// DevAnnouncements is emitted with the current in-client announcements.
-type DevAnnouncements struct {
-	protocol.CMsgGCToClientDevAnnouncements
-}
-
-// GetDeadlockEventMsgID returns the deadlock message ID of the event.
-func (e *DevAnnouncements) GetDeadlockEventMsgID() protocol.EGCCitadelClientMessages {
-	return protocol.EGCCitadelClientMessages_k_EMsgGCToClientDevAnnouncements
-}
-
-// GetEventBody returns the event body.
-func (e *DevAnnouncements) GetEventBody() protobuf_go_lite.Message {
-	return &e.CMsgGCToClientDevAnnouncements
-}
-
-// GetEventName returns the event name.
-func (e *DevAnnouncements) GetEventName() string {
-	return "DevAnnouncements"
 }
 
 // DevPlaytestStatus is an event delivered by the GC.
@@ -172,6 +174,28 @@ func (e *PartyEvent) GetEventBody() protobuf_go_lite.Message {
 // GetEventName returns the event name.
 func (e *PartyEvent) GetEventName() string {
 	return "PartyEvent"
+}
+
+// PartyPlayerTyping is an event delivered by the GC.
+//
+// Message: k_EMsgGCToClientPartyPlayerTyping (CMsgGCToClientPartyPlayerTyping).
+type PartyPlayerTyping struct {
+	protocol.CMsgGCToClientPartyPlayerTyping
+}
+
+// GetDeadlockEventMsgID returns the deadlock message ID of the event.
+func (e *PartyPlayerTyping) GetDeadlockEventMsgID() protocol.EGCCitadelClientMessages {
+	return protocol.EGCCitadelClientMessages_k_EMsgGCToClientPartyPlayerTyping
+}
+
+// GetEventBody returns the event body.
+func (e *PartyPlayerTyping) GetEventBody() protobuf_go_lite.Message {
+	return &e.CMsgGCToClientPartyPlayerTyping
+}
+
+// GetEventName returns the event name.
+func (e *PartyPlayerTyping) GetEventName() string {
+	return "PartyPlayerTyping"
 }
 
 // ProfileCardUpdated is emitted with the profile card of an account, usually

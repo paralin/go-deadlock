@@ -34,6 +34,7 @@ var msgSenderOverrides = map[dm.EGCCitadelClientMessages]MsgSender{
 	dm.EGCCitadelClientMessages_k_EMsgClientToGCTarotDevGenerateTestTilesResponse: MsgSenderNone,
 	dm.EGCCitadelClientMessages_k_EMsgClientToGCTarotDevModifyEnergy:              MsgSenderNone,
 	dm.EGCCitadelClientMessages_k_EMsgClientToGCTarotDevModifyEnergyResponse:      MsgSenderNone,
+	dm.EGCCitadelClientMessages_k_EMsgClientToGCPartyPlayerTyping:                 MsgSenderNone,
 }
 
 // msgMethodNameOverrides overrides the generated method name for a message.
@@ -150,8 +151,6 @@ the author of the build.`,
 	dm.EGCCitadelClientMessages_k_EMsgClientToGCDevAction: `SendDevAction runs a developer-only GC action. Developer accounts only.`,
 	dm.EGCCitadelClientMessages_k_EMsgClientToGCIsInMatchmaking: `SendIsInMatchmaking checks whether the account is currently in the
 matchmaking queue. The response carries the queue state.`,
-	dm.EGCCitadelClientMessages_k_EMsgClientToGCModifyDevAnnouncements: `SendModifyDevAnnouncements creates, updates, or removes in-client
-announcements. Developer accounts only.`,
 	dm.EGCCitadelClientMessages_k_EMsgClientToGCPartyAction: `SendPartyAction performs an action on a party member, such as kicking or
 promoting. See CMsgClientToGCPartyAction.EAction for the available actions;
 the response reports the outcome.`,
@@ -228,5 +227,4 @@ after a book purchase.`,
 state for your account.`,
 	dm.EGCCitadelClientMessages_k_EMsgGCToClientHeroLabsSchedule: `HeroLabsSchedule is emitted with the schedule of upcoming hero labs
 playtest sessions.`,
-	dm.EGCCitadelClientMessages_k_EMsgGCToClientDevAnnouncements: `DevAnnouncements is emitted with the current in-client announcements.`,
 }

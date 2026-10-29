@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "protocFlagsHash": "3864ec2c1c9f86e1e12b0cc60cd7df8a4c0d922e1969991a622eb7e0795524c4",
-  "toolVersions": "protoc=embedded,protobuf-go-lite=v0.16.0,starpc=v0.49.21",
+  "protocFlagsHash": "de812b9aa98715963860f76c0d5db399ab0add3cdb81a171d6a4317f72644ef8",
+  "toolVersions": "protoc=embedded,protobuf-go-lite=v0.19.1-0.20261018054529-f60c4d2691ea,starpc=v0.52.3",
   "packages": {
     "github.com/paralin/go-deadlock/protocol": {
-      "hash": "4aae43d340bc350ca83fc8b8b22de171ef55e48df14c975b9863481010035528",
+      "hash": "f2be12f8c6ba25f966e3b4dc95886027d06d77e8505b1982ffb377a5d232f468",
       "generatedFiles": [
         "protocol/base_gcmessages.pb.go",
         "protocol/citadel_gcmessages_client.pb.go",
