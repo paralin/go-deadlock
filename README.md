@@ -30,70 +30,38 @@ dl := deadlock.New(cl, logrus.StandardLogger())
  - [x] Basic party operations
     - [x] Read party state correctly
     - [ ] Implement normal party operations
- - [ ] Lobby tracking / state management
+ - [x] Lobby tracking / state management
 
 ## SOCache Mechanism
 
-The caching mechanism makes it easy to watch for changes to common objects.
-
-This mechanism is used everywhere, these objects are not exposed in their own events.
+The client mirrors the shared-object caches the GC subscribes it to: the
+account's profile, heroes and challenges, its party and its match lobby. Each
+cache belongs to an owner, and holds objects by type and key fields. The client
+emits a `*socache.CacheEvent` on its event stream for every object created,
+updated or destroyed, with the owner and type, and clears the caches when the
+session ends.
 
 ```go
 import (
-	gcmm "github.com/paralin/go-deadlock/protocol"
 	"github.com/paralin/go-deadlock/cso"
+	devents "github.com/paralin/go-deadlock/events"
+	gcmm "github.com/paralin/go-deadlock/protocol"
+	"github.com/paralin/go-deadlock/socache"
 )
 
-eventCh, eventCancel, err := dl.GetCache().SubscribeType(cso.EconItem)
-if err != nil {
-    return err
+switch ev := event.(type) {
+case *socache.CacheEvent:
+	if hero, ok := ev.Object.(*gcmm.CSOAccountHeroInfo); ok {
+		// ev.EventType tells whether the hero was created, updated or destroyed.
+	}
+case devents.ClientStateChanged:
+	// ev.NewState.Party, Lobby and HideoutLobby follow the caches.
+	// ev.NewState.MatchID() names the party's match once its lobby forms.
 }
-
-defer eventCancel()
-
-itemEvent := <-eventCh
-item := itemEvent.Object.(*gcmm.CSOEconItem)
 ```
 
-Events for the object type are emitted on the eventCh. Be sure to call `eventCancel` once you are done with the channel to prevent resource leaks.
-
-The cache object also adds interfaces to get and list the current objects in the cache.
-
-### Registering an additional shared-object schema
-
-Deadlock-specific party/lobby type IDs are not yet built into this library.
-If you have independently verified those IDs for your protocol version, register
-their message types on your client's cache **before it receives GC packets**:
-
-```go
-// partyTypeID and lobbyTypeID are caller-supplied, verified cso.CSOType values.
-// No numeric mappings are implied by this example.
-cache := dl.GetCache()
-if err := cache.RegisterType(partyTypeID, &gcmm.CSOCitadelParty{}); err != nil {
-    return err
-}
-if err := cache.RegisterType(lobbyTypeID, &gcmm.CSOCitadelLobby{}); err != nil {
-    return err
-}
-partyEvents, cancel, err := cache.SubscribeType(partyTypeID)
-if err != nil {
-    return err
-}
-defer cancel()
-// Consume partyEvents while this explicitly selected party is relevant.
-```
-
-Registration retains only the prototype's Go type, not its field values. Each
-packet gets a fresh message; mappings are cache-local and cannot replace existing
-or built-in mappings. Unknown/unregistered IDs still return an error. Earlier
-unsupported packets are not replayed after registration.
-
-This is local decoding configuration, not a request to the GC to subscribe,
-join a party, discover matches or spectate. It does not populate
-`DeadlockState.Party`/`Lobby`, associate a party with a running match, or prove
-that the GC will send those objects. A custom-lobby application must verify
-its selected party identity/private mode, observer admission and associated
-running lobby before acting; registration itself does not enforce that policy.
+`GetCache().Get` and `GetCache().Range` read the current objects.
+`GetCache().RegisterType` decodes a type that has no built-in schema in `cso`.
 
 ## Implementation Generation
 

@@ -63,7 +63,7 @@ func NewWithCoordinator(coordinator Coordinator, emit func(any), le logrus.Field
 	// Construct the session before registering it for incoming packets.
 	c := &Deadlock{
 		le:          le,
-		cache:       socache.NewSOCache(le),
+		cache:       socache.NewSOCache(),
 		coordinator: coordinator,
 		emit:        emit,
 		pending:     make(map[steamprotocol.JobId]pendingRequest),
@@ -102,7 +102,9 @@ func (d *Deadlock) buildHandlerMap() {
 		uint32(gcsm.ESOMsg_k_ESOMsg_CacheSubscribed):   d.handleCacheSubscribed,
 		uint32(gcsm.ESOMsg_k_ESOMsg_UpdateMultiple):    d.handleCacheUpdateMultiple,
 		uint32(gcsm.ESOMsg_k_ESOMsg_CacheUnsubscribed): d.handleCacheUnsubscribed,
-		uint32(gcsm.ESOMsg_k_ESOMsg_Destroy):           d.handleCacheDestroy,
+		uint32(gcsm.ESOMsg_k_ESOMsg_Create):            d.cacheSingleHandler(false),
+		uint32(gcsm.ESOMsg_k_ESOMsg_Update):            d.cacheSingleHandler(false),
+		uint32(gcsm.ESOMsg_k_ESOMsg_Destroy):           d.cacheSingleHandler(true),
 
 		// System events
 		uint32(gcsm.EGCBaseClientMsg_k_EMsgGCPingRequest): d.handlePingRequest,

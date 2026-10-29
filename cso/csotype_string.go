@@ -4,13 +4,60 @@ package cso
 
 import "strconv"
 
-const _CSOType_name = "EconItem"
+func _() {
+	// An "invalid array index" compiler error signifies that the constant values have changed.
+	// Re-run the stringer command to generate them again.
+	var x [1]struct{}
+	_ = x[EconItem-1]
+	_ = x[ItemRecipe-5]
+	_ = x[EconGameAccountClient-7]
+	_ = x[Lobby-101]
+	_ = x[GameAccountClient-104]
+	_ = x[Party-105]
+	_ = x[AccountHeroInfo-107]
+	_ = x[AccountSyncStorage-108]
+	_ = x[AccountChallenge-109]
+	_ = x[HideoutLobby-110]
+	_ = x[RankedProgress-112]
+	_ = x[AccountCabalMembership-113]
+}
 
-var _CSOType_index = [...]uint8{0, 8}
+const (
+	_CSOType_name_0 = "EconItem"
+	_CSOType_name_1 = "ItemRecipe"
+	_CSOType_name_2 = "EconGameAccountClient"
+	_CSOType_name_3 = "Lobby"
+	_CSOType_name_4 = "GameAccountClientParty"
+	_CSOType_name_5 = "AccountHeroInfoAccountSyncStorageAccountChallengeHideoutLobby"
+	_CSOType_name_6 = "RankedProgressAccountCabalMembership"
+)
+
+var (
+	_CSOType_index_4 = [...]uint8{0, 17, 22}
+	_CSOType_index_5 = [...]uint8{0, 15, 33, 49, 61}
+	_CSOType_index_6 = [...]uint8{0, 14, 36}
+)
 
 func (i CSOType) String() string {
-	if i < 0 || i >= CSOType(len(_CSOType_index)-1) {
+	switch {
+	case i == 1:
+		return _CSOType_name_0
+	case i == 5:
+		return _CSOType_name_1
+	case i == 7:
+		return _CSOType_name_2
+	case i == 101:
+		return _CSOType_name_3
+	case 104 <= i && i <= 105:
+		i -= 104
+		return _CSOType_name_4[_CSOType_index_4[i]:_CSOType_index_4[i+1]]
+	case 107 <= i && i <= 110:
+		i -= 107
+		return _CSOType_name_5[_CSOType_index_5[i]:_CSOType_index_5[i+1]]
+	case 112 <= i && i <= 113:
+		i -= 112
+		return _CSOType_name_6[_CSOType_index_6[i]:_CSOType_index_6[i+1]]
+	default:
 		return "CSOType(" + strconv.FormatInt(int64(i), 10) + ")"
 	}
-	return _CSOType_name[_CSOType_index[i]:_CSOType_index[i+1]]
 }

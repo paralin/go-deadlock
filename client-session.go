@@ -2,9 +2,11 @@ package deadlock
 
 import (
 	"context"
+	"errors"
 
 	devents "github.com/paralin/go-deadlock/events"
 	gcsm "github.com/paralin/go-deadlock/protocol"
+	"github.com/paralin/go-deadlock/socache"
 	"github.com/paralin/go-steam/protocol/gamecoordinator"
 )
 
@@ -39,24 +41,29 @@ func (d *Deadlock) SayHello(haveCacheVersions ...*gcsm.CMsgSOCacheHaveVersion) {
 	})
 }
 
-// handleClientWelcome admits requests after applying the coordinator's caches.
+// handleClientWelcome admits requests, then fills the caches the welcome carries.
 func (d *Deadlock) handleClientWelcome(packet *gamecoordinator.GCPacket) error {
 	// Decode the welcome and synchronize its shared-object subscriptions.
 	welcome := &gcsm.CMsgClientWelcome{}
 	if err := d.unmarshalBody(packet, welcome); err != nil {
 		return err
 	}
+	// Admit the session first: the transition resets the caches the welcome refills.
+	admitted := d.setConnectionStatus(gcsm.GCConnectionStatus_GCConnectionStatus_HAVE_SESSION, nil)
+	d.applyCache(func(c *socache.SOCache) ([]*socache.CacheEvent, error) {
+		var changes []*socache.CacheEvent
+		var errs []error
+		for _, cache := range welcome.GetOutofdateSubscribedCaches() {
+			applied, err := c.HandleSubscribed(cache)
+			changes = append(changes, applied...)
+			errs = append(errs, err)
+		}
+		return changes, errors.Join(errs...)
+	})
 	for _, cache := range welcome.GetUptodateSubscribedCaches() {
 		d.RequestCacheSubscriptionRefresh(cache.GetOwnerSoid())
 	}
-	for _, cache := range welcome.GetOutofdateSubscribedCaches() {
-		if err := d.cache.HandleSubscribed(cache); err != nil {
-			d.le.WithError(err).Warn("unable to handle welcome cache")
-		}
-	}
-
-	// Publish a welcome only when the current handler still accepts sessions.
-	if d.setConnectionStatus(gcsm.GCConnectionStatus_GCConnectionStatus_HAVE_SESSION, nil) {
+	if admitted {
 		d.emit(&devents.ClientWelcomed{Welcome: welcome})
 	}
 	return nil
@@ -86,6 +93,7 @@ func (d *Deadlock) setConnectionStatus(status gcsm.GCConnectionStatus, update *g
 	}
 	previous := d.state
 	d.state.ClearState()
+	cleared := d.cache.Reset()
 	d.state.ConnectionStatus = status
 	d.state.LastConnectionStatusUpdate = update
 	if d.connectionCtxCancel != nil {
@@ -100,6 +108,9 @@ func (d *Deadlock) setConnectionStatus(status gcsm.GCConnectionStatus, update *g
 	d.mtx.Unlock()
 
 	// Event consumers may call back into Deadlock without holding its state lock.
+	for _, change := range cleared {
+		d.emit(change)
+	}
 	d.emit(&devents.GCConnectionStatusChanged{
 		OldState: previous.ConnectionStatus,
 		NewState: status,
