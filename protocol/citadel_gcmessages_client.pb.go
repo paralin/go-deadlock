@@ -4877,6 +4877,8 @@ type CSOAccountHeroInfo struct {
 	Wins          *uint32                         `protobuf:"varint,4,opt,name=wins" json:"wins,omitempty"`
 	HeroXp        *uint32                         `protobuf:"varint,6,opt,name=hero_xp,json=heroXp" json:"heroXp,omitempty"`
 	BrawlWins     *uint32                         `protobuf:"varint,7,opt,name=brawl_wins,json=brawlWins" json:"brawlWins,omitempty"`
+	Losses        *uint32                         `protobuf:"varint,8,opt,name=losses" json:"losses,omitempty"`
+	BrawlLosses   *uint32                         `protobuf:"varint,9,opt,name=brawl_losses,json=brawlLosses" json:"brawlLosses,omitempty"`
 }
 
 // Default values for CSOAccountHeroInfo fields.
@@ -4928,6 +4930,20 @@ func (x *CSOAccountHeroInfo) GetHeroXp() uint32 {
 func (x *CSOAccountHeroInfo) GetBrawlWins() uint32 {
 	if x != nil && x.BrawlWins != nil {
 		return *x.BrawlWins
+	}
+	return 0
+}
+
+func (x *CSOAccountHeroInfo) GetLosses() uint32 {
+	if x != nil && x.Losses != nil {
+		return *x.Losses
+	}
+	return 0
+}
+
+func (x *CSOAccountHeroInfo) GetBrawlLosses() uint32 {
+	if x != nil && x.BrawlLosses != nil {
+		return *x.BrawlLosses
 	}
 	return 0
 }
@@ -11869,6 +11885,8 @@ func (m *CSOAccountHeroInfo) CloneVT() *CSOAccountHeroInfo {
 	r.Wins = protobuf_go_lite.ClonePtr(m.Wins)
 	r.HeroXp = protobuf_go_lite.ClonePtr(m.HeroXp)
 	r.BrawlWins = protobuf_go_lite.ClonePtr(m.BrawlWins)
+	r.Losses = protobuf_go_lite.ClonePtr(m.Losses)
+	r.BrawlLosses = protobuf_go_lite.ClonePtr(m.BrawlLosses)
 	if len(m.unknownFields) > 0 {
 		r.unknownFields = slices.Clone(m.unknownFields)
 	}
@@ -15621,6 +15639,12 @@ func (this *CSOAccountHeroInfo) EqualVT(that *CSOAccountHeroInfo) bool {
 		return false
 	}
 	if !protobuf_go_lite.EqualPtr(this.BrawlWins, that.BrawlWins) {
+		return false
+	}
+	if !protobuf_go_lite.EqualPtr(this.Losses, that.Losses) {
+		return false
+	}
+	if !protobuf_go_lite.EqualPtr(this.BrawlLosses, that.BrawlLosses) {
 		return false
 	}
 	return string(this.unknownFields) == string(that.unknownFields)
@@ -21120,6 +21144,16 @@ func (m *CSOAccountHeroInfo) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	_ = l
 	if m.unknownFields != nil {
 		i = protobuf_go_lite.EncodeRawBytes(dAtA, i, m.unknownFields)
+	}
+	if m.BrawlLosses != nil {
+		i = protobuf_go_lite.EncodeVarint(dAtA, i, uint64(*m.BrawlLosses))
+		i--
+		dAtA[i] = 0x48
+	}
+	if m.Losses != nil {
+		i = protobuf_go_lite.EncodeVarint(dAtA, i, uint64(*m.Losses))
+		i--
+		dAtA[i] = 0x40
 	}
 	if m.BrawlWins != nil {
 		i = protobuf_go_lite.EncodeVarint(dAtA, i, uint64(*m.BrawlWins))
@@ -30572,6 +30606,8 @@ func (m *CSOAccountHeroInfo) SizeVT() (n int) {
 	n += protobuf_go_lite.SizeVarintPtr(1, m.Wins)
 	n += protobuf_go_lite.SizeVarintPtr(1, m.HeroXp)
 	n += protobuf_go_lite.SizeVarintPtr(1, m.BrawlWins)
+	n += protobuf_go_lite.SizeVarintPtr(1, m.Losses)
+	n += protobuf_go_lite.SizeVarintPtr(1, m.BrawlLosses)
 	n += len(m.unknownFields)
 	return n
 }
@@ -33631,6 +33667,14 @@ func (x *CSOAccountHeroInfo) MarshalProtoText() string {
 	if x.BrawlWins != nil {
 		protobuf_go_lite.TextWriteFieldPrefix(&sb, initialLen, "brawl_wins")
 		protobuf_go_lite.TextWriteUint(&sb, *x.BrawlWins)
+	}
+	if x.Losses != nil {
+		protobuf_go_lite.TextWriteFieldPrefix(&sb, initialLen, "losses")
+		protobuf_go_lite.TextWriteUint(&sb, *x.Losses)
+	}
+	if x.BrawlLosses != nil {
+		protobuf_go_lite.TextWriteFieldPrefix(&sb, initialLen, "brawl_losses")
+		protobuf_go_lite.TextWriteUint(&sb, *x.BrawlLosses)
 	}
 	return protobuf_go_lite.TextFinishMessage(&sb)
 }
@@ -39268,6 +39312,26 @@ func (m *CSOAccountHeroInfo) UnmarshalVT(dAtA []byte) error {
 				return err
 			}
 			m.BrawlWins = &v
+		case 8:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Losses", wireType)
+			}
+			var v uint32
+			v, iNdEx, err = protobuf_go_lite.DecodeVarintUint32(dAtA, iNdEx)
+			if err != nil {
+				return err
+			}
+			m.Losses = &v
+		case 9:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field BrawlLosses", wireType)
+			}
+			var v uint32
+			v, iNdEx, err = protobuf_go_lite.DecodeVarintUint32(dAtA, iNdEx)
+			if err != nil {
+				return err
+			}
+			m.BrawlLosses = &v
 		default:
 			iNdEx = preIndex
 			skippy, err := protobuf_go_lite.Skip(dAtA[iNdEx:])

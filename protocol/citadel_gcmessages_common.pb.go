@@ -675,6 +675,7 @@ const (
 	ECitadelGameMode_k_ECitadelGameMode_StreetBrawl ECitadelGameMode = 4
 	ECitadelGameMode_k_ECitadelGameMode_ExploreNYC  ECitadelGameMode = 5
 	ECitadelGameMode_k_ECitadelGameMode_Internal    ECitadelGameMode = 6
+	ECitadelGameMode_k_ECitadelGameMode_Internal02  ECitadelGameMode = 7
 )
 
 // Enum value maps for ECitadelGameMode.
@@ -687,6 +688,7 @@ var (
 		4: "k_ECitadelGameMode_StreetBrawl",
 		5: "k_ECitadelGameMode_ExploreNYC",
 		6: "k_ECitadelGameMode_Internal",
+		7: "k_ECitadelGameMode_Internal02",
 	}
 	ECitadelGameMode_value = map[string]int32{
 		"k_ECitadelGameMode_Invalid":     0,
@@ -696,6 +698,7 @@ var (
 		"k_ECitadelGameMode_StreetBrawl": 4,
 		"k_ECitadelGameMode_ExploreNYC":  5,
 		"k_ECitadelGameMode_Internal":    6,
+		"k_ECitadelGameMode_Internal02":  7,
 	}
 )
 
